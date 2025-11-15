@@ -1,0 +1,57 @@
+
+/**
+ * AUTO GENERATED SCRAPE FILE
+ * Request by : 6289673462138@s.whatsapp.net
+ * Filename   : soundcloud.txt
+ * Upload At  : Sabtu, 15/11/2025
+ */
+
+const axios = require('axios')
+
+async function snapfromSoundCloud(trackUrl) {
+  const api = 'https://snapfrom.com/wp-json/aio-dl/video-data/'
+
+  const payload = new URLSearchParams()
+  payload.append('url', trackUrl)
+  payload.append('token', 'a2ae81fd2b441b9cb462ca2612f1f0b6147c986b873f3b9f7bda8b3f3437b235')
+
+  const res = await axios.post(api, payload, {
+    headers: {
+      'accept': '*/*',
+      'content-type': 'application/x-www-form-urlencoded',
+      'origin': 'https://snapfrom.com',
+      'referer': 'https://snapfrom.com/soundcloud-music-downloader/',
+      'user-agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Mobile Safari/537.36'
+    }
+  })
+
+  const data = res.data
+  if (!data || !data.medias) {
+    return { code: 400, message: 'Gagal mengambil data dari SnapFrom' }
+  }
+
+  return {
+    code: 200,
+    timestamp: Date.now(),
+    data: {
+      title: data.title,
+      duration: data.duration,
+      source: data.source,
+      thumbnail: data.thumbnail,
+      url: data.url,
+      audios: data.medias
+        .filter(m => m.audioAvailable)
+        .map(m => ({
+          quality: m.quality,
+          extension: m.extension,
+          size: m.formattedSize,
+          download: m.url
+        }))
+    }
+  }
+}
+
+;(async () => {
+  const result = await snapfromSoundCloud('https://on.soundcloud.com/qx6GNAFK8nn1WwvjhA')
+  return result
+})()
