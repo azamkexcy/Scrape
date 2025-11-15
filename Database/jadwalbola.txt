@@ -1,0 +1,55 @@
+
+/**
+ * AUTO GENERATED SCRAPE FILE
+ * Request by : 6289673462138@s.whatsapp.net
+ * Filename   : jadwalbola.txt
+ * Upload At  : Sabtu, 15/11/2025
+ */
+
+const axios = require('axios')
+const cheerio = require('cheerio')
+
+async function jadwalSepakbola() {
+  try {
+    const res = await axios.get('https://www.jadwaltv.net/jadwal-sepakbola')
+    const $ = cheerio.load(res.data)
+
+    const result = []
+
+    $('table.table.table-bordered > tbody > tr.jklIv').each((_, el) => {
+      const cleaned = $(el)
+        .html()
+        .replace(/<td>/g, '')
+        .replace(/<\/td>/g, ' - ')
+        .trim()
+
+      const finalText = cleaned.substring(0, cleaned.length - 3)
+
+      if (finalText) result.push(finalText)
+    })
+
+    if (!result.length) {
+      return {
+        code: 404,
+        timestamp: Date.now(),
+        message: 'Tidak ada hasil ditemukan'
+      }
+    }
+
+    return {
+      code: 200,
+      timestamp: Date.now(),
+      data: result
+    }
+  } catch (e) {
+    return {
+      code: 500,
+      timestamp: Date.now(),
+      message: e.message
+    }
+  }
+}
+
+;(async () => {
+  return await jadwalSepakbola()
+})()
