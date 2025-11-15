@@ -1,0 +1,69 @@
+
+/**
+ * AUTO GENERATED SCRAPE FILE
+ * Request by : 6289673462138@s.whatsapp.net
+ * Filename   : puisi.txt
+ * Upload At  : Sabtu, 15/11/2025
+ */
+
+const axios = require('axios')
+const cheerio = require('cheerio')
+
+async function puisi() {
+  try {
+    const url = 'https://karyakarsa.com/sigota/kumpulan-puisi-random-2'
+    const { data } = await axios.get(url)
+    const $ = cheerio.load(data)
+
+    const puisiList = []
+
+    $('.content-lock p').each((i, el) => {
+      const text = $(el).text().trim()
+      if (text) puisiList.push(text)
+    })
+
+    const puisiFormatted = []
+    let current = []
+
+    for (const line of puisiList) {
+      if (line === '-----------') {
+        if (current.length) {
+          puisiFormatted.push(current)
+          current = []
+        }
+      } else {
+        current.push(line)
+      }
+    }
+
+    if (current.length) puisiFormatted.push(current)
+
+    if (puisiFormatted.length === 0) {
+      return {
+        code: 404,
+        timestamp: Date.now(),
+        message: 'Tidak ada puisi ditemukan'
+      }
+    }
+
+    const randomIndex = Math.floor(Math.random() * puisiFormatted.length)
+    const randomPuisi = puisiFormatted[randomIndex].join('\n')
+
+    return {
+      code: 200,
+      timestamp: Date.now(),
+      data: randomPuisi
+    }
+
+  } catch (e) {
+    return {
+      code: 500,
+      timestamp: Date.now(),
+      message: e.message
+    }
+  }
+}
+
+;(async () => {
+  return await puisi()
+})()
