@@ -1,0 +1,63 @@
+
+/**
+ * AUTO GENERATED SCRAPE FILE
+ * Request by : 6289673462138@s.whatsapp.net
+ * Filename   : ytmp3.txt
+ * Upload At  : Sabtu, 15/11/2025
+ */
+
+const axios = require('axios')
+const qs = require('querystring')
+
+async function ytmp3(url) {
+  try {
+    if (!url) {
+      return {
+        code: 400,
+        timestamp: Date.now(),
+        message: 'Masukkan URL YouTube-nya bang'
+      }
+    }
+
+    const payload = qs.stringify({ url })
+
+    const headers = {
+      'content-type': 'application/x-www-form-urlencoded',
+      origin: 'https://www.videodowns.com'
+    }
+
+    const res = await axios.post(
+      'https://www.videodowns.com/youtube-video-downloader.php?action=get_info',
+      payload,
+      { headers }
+    )
+
+    const data = res.data || {}
+    const formats = data.formats || {}
+
+    const audio = formats.audio?.ext
+      ? \`https://www.videodowns.com/youtube-video-downloader.php?download=1&url=${encodeURIComponent(url)}&format=audio\`
+      : null
+
+    return {
+      code: 200,
+      timestamp: Date.now(),
+      data: {
+        title: data.info?.title || null,
+        channel: data.info?.channel || data.info?.author || null,
+        thumbnail: data.thumbnail || null,
+        audio
+      }
+    }
+  } catch (e) {
+    return {
+      code: 500,
+      timestamp: Date.now(),
+      message: e?.response?.data || e?.message || 'Terjadi kesalahan'
+    }
+  }
+}
+
+;(async () => {
+  return await ytmp3('https://youtu.be/dQw4w9WgXcQ')
+})()
