@@ -1,0 +1,67 @@
+
+/**
+ * AUTO GENERATED SCRAPE FILE
+ * Request by : 6289673462138@s.whatsapp.net
+ * Filename   : facebook.txt
+ * Upload At  : Sabtu, 15/11/2025
+ */
+
+> const axios = require('axios')
+
+async function facebookDownloader(url) {
+  try {
+    if (!url) {
+      return {
+        code: 400,
+        timestamp: Date.now(),
+        message: 'URL Facebook tidak boleh kosong'
+      }
+    }
+
+    const api = 'https://serverless-tooly-gateway-6n4h522y.ue.gateway.dev/facebook/video?url=' 
+      + encodeURIComponent(url)
+
+    const res = await axios.get(api, {
+      headers: {
+        accept: '*/*',
+        origin: 'https://chative.io',
+        referer: 'https://chative.io/',
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
+      }
+    })
+
+    if (!res.data || !res.data.success) {
+      return {
+        code: 500,
+        timestamp: Date.now(),
+        message: 'Gagal memproses video Facebook'
+      }
+    }
+
+    const data = res.data
+
+    return {
+      code: 200,
+      timestamp: Date.now(),
+      title: data.title || '',
+      hd: data.videos?.hd?.url || null,
+      sd: data.videos?.sd?.url || null,
+      size: {
+        hd: data.videos?.hd?.size || null,
+        sd: data.videos?.sd?.size || null
+      },
+      raw: data
+    }
+
+  } catch (e) {
+    return {
+      code: 500,
+      timestamp: Date.now(),
+      message: e.message
+    }
+  }
+}
+
+;(async () => {
+  return await facebookDownloader('https://www.facebook.com/share/r/1ARy4BcRag/')
+})()
