@@ -7,51 +7,45 @@
  */
 
 const axios = require('axios')
+const cheerio = require('cheerio')
 
-async function snapfromSoundCloud(trackUrl) {
-  const api = 'https://snapfrom.com/wp-json/aio-dl/video-data/'
+async function scrapeSoundClouds(query) {
+  try {
+    const url = \`https://m.soundcloud.com/search?q=${encodeURIComponent(query)}\`
+    const { data } = await axios.get(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36',
+        'Accept-Language': 'id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7',
+        'Referer': 'https://m.soundcloud.com/',
+        'Origin': 'https://m.soundcloud.com'
+      }
+    })
 
-  const payload = new URLSearchParams()
-  payload.append('url', trackUrl)
-  payload.append('token', 'a2ae81fd2b441b9cb462ca2612f1f0b6147c986b873f3b9f7bda8b3f3437b235')
+    const $ = cheerio.load(data)
+    const results = []
 
-  const res = await axios.post(api, payload, {
-    headers: {
-      'accept': '*/*',
-      'content-type': 'application/x-www-form-urlencoded',
-      'origin': 'https://snapfrom.com',
-      'referer': 'https://snapfrom.com/soundcloud-music-downloader/',
-      'user-agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Mobile Safari/537.36'
+    $('.List_VerticalList__2uQYU li').each((i, el) => {
+      const title = $(el).find('.Cell_CellLink__3yLVS').attr('aria-label')
+      const path = $(el).find('.Cell_CellLink__3yLVS').attr('href')
+      if (title && path) {
+        results.push({
+          title,
+          url: 'https://m.soundcloud.com' + path
+        })
+      }
+    })
+
+    return {
+      status: true,
+      creator: 'azam',
+      results: results.slice(0, 5)
     }
-  })
-
-  const data = res.data
-  if (!data || !data.medias) {
-    return { code: 400, message: 'Gagal mengambil data dari SnapFrom' }
-  }
-
-  return {
-    code: 200,
-    timestamp: Date.now(),
-    data: {
-      title: data.title,
-      duration: data.duration,
-      source: data.source,
-      thumbnail: data.thumbnail,
-      url: data.url,
-      audios: data.medias
-        .filter(m => m.audioAvailable)
-        .map(m => ({
-          quality: m.quality,
-          extension: m.extension,
-          size: m.formattedSize,
-          download: m.url
-        }))
-    }
+  } catch (err) {
+    return { status: false, message: 'Error: ' + err.message }
   }
 }
 
 ;(async () => {
-  const result = await snapfromSoundCloud('https://on.soundcloud.com/qx6GNAFK8nn1WwvjhA')
-  return result
+  const hasil = await scrapeSoundClouds('Dj mp clup pkan baru')
+  return hasil
 })()
