@@ -1,0 +1,97 @@
+
+/**
+ * AUTO GENERATED SCRAPE FILE
+ * Request by : 6289673462138@s.whatsapp.net
+ * Filename   : spotifydl.txt
+ * Upload At  : Sabtu, 15/11/2025
+ */
+
+const axios = require('axios')
+const cheerio = require('cheerio')
+
+async function spotifyDl(url) {
+  try {
+    let cookie = null
+    let token = null
+
+    const Visit = async () => {
+      const res = await axios.get('https://spotmate.online/en', {
+        headers: {
+          'user-agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Mobile Safari/537.36'
+        }
+      })
+
+      const setCookie = res.headers['set-cookie']
+      if (setCookie) cookie = setCookie.map(i => i.split(';')[0]).join('; ')
+
+      const $ = cheerio.load(res.data)
+      token = $('meta[name="csrf-token"]').attr('content')
+    }
+
+    const Headers = () => ({
+      'authority': 'spotmate.online',
+      'accept': '*/*',
+      'accept-language': 'id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7',
+      'content-type': 'application/json',
+      'cookie': cookie,
+      'origin': 'https://spotmate.online',
+      'referer': 'https://spotmate.online/en',
+      'sec-ch-ua': '"Not A(Brand";v="8", "Chromium";v="132"',
+      'sec-ch-ua-mobile': '?1',
+      'sec-ch-ua-platform': '"Android"',
+      'sec-fetch-dest': 'empty',
+      'sec-fetch-mode': 'cors',
+      'sec-fetch-site': 'same-origin',
+      'user-agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Mobile Safari/537.36',
+      'x-csrf-token': token
+    })
+
+    if (!cookie || !token) await Visit()
+
+    const info = await axios.post(
+      'https://spotmate.online/getTrackData',
+      { spotify_url: url },
+      { headers: Headers() }
+    )
+
+    const convert = await axios.post(
+      'https://spotmate.online/convert',
+      { urls: url },
+      { headers: Headers() }
+    )
+
+    const data = info.data || {}
+    const result = convert.data || {}
+
+    const formatDuration = ms => {
+      let m = Math.floor(ms / 60000)
+      let s = ((ms % 60000) / 1000).toFixed(0)
+      return \`${m}:${s.padStart(2, '0')}\`
+    }
+
+    return {
+      code: 200,
+      timestamp: Date.now(),
+      data: {
+        title: data.name,
+        artists: data.artists?.map(a => a.name),
+        album: data.album?.name,
+        release: data.album?.release_date,
+        duration: formatDuration(data.duration_ms),
+        popularity: \`${data.popularity}%\`,
+        thumbnail: data.album?.images?.[0]?.url,
+        download: result.url
+      }
+    }
+  } catch (e) {
+    return {
+      code: 500,
+      timestamp: Date.now(),
+      message: e.message
+    }
+  }
+}
+
+;(async () => {
+  return await spotifyDl('https://open.spotify.com/track/6f3Slt0GbA2bPZlz0aIFXN')
+})()
