@@ -1,0 +1,85 @@
+
+/**
+ * AUTO GENERATED SCRAPE FILE
+ * Request by : 6289673462138@s.whatsapp.net
+ * Filename   : mlbb.txt
+ * Upload At  : Minggu, 16/11/2025
+ */
+
+const axios = require('axios')
+const cheerio = require('cheerio')
+
+async function mlHeroes(hero) {
+  try {
+    const url = \`https://mobile-legends.fandom.com/wiki/${hero}\`
+    const { data } = await axios.get(url)
+    const $ = cheerio.load(data)
+
+    const releaseDate = $('[data-source="release_date"] .pi-data-value').text().trim()
+    const role = $('[data-source="role"] .pi-data-value a').text().trim()
+    const specialty = $('[data-source="specialty"] .pi-data-value').text().trim()
+    const lane = $('[data-source="lane"] .pi-data-value a').text().trim()
+
+    const priceBP = $('[data-source="price"] .pi-data-value span').first().text().trim()
+    const priceDiamond = $('[data-source="price"] .pi-data-value span').last().text().trim()
+
+    const skillResource = $('[data-source="resource"] .pi-data-value a').text().trim()
+    const damageType = $('[data-source="dmg_type"] .pi-data-value a').text().trim()
+    const attackType = $('[data-source="atk_type"] .pi-data-value a').text().trim()
+
+    const durability = $('[data-source="durability"] .bar').text().trim()
+    const offense = $('[data-source="offense"] .bar').text().trim()
+    const controlEffects = $('[data-source="control effect"] .bar').text().trim()
+    const difficulty = $('[data-source="difficulty"] .bar').text().trim()
+
+    const heroNumber = $('[data-source="current_hero"]').text().trim()
+    const heroName = $('[data-source="current_hero"] b').text().trim()
+
+    const image = $('.pi-item.pi-image a img').attr('src')
+
+    return {
+      code: 200,
+      timestamp: Date.now(),
+      result: {
+        heroName,
+        heroNumber,
+        releaseDate,
+        role,
+        specialty,
+        lane,
+        price: {
+          battlePoints: priceBP,
+          diamonds: priceDiamond
+        },
+        skillResource,
+        damageType,
+        attackType,
+        ratings: {
+          durability,
+          offense,
+          controlEffects,
+          difficulty
+        },
+        image
+      }
+    }
+  } catch (e) {
+    if (e.response?.status === 404) {
+      return {
+        code: 404,
+        timestamp: Date.now(),
+        message: \`Tidak ada hero bernama "${hero}" di Mobile Legends\`
+      }
+    }
+
+    return {
+      code: 500,
+      timestamp: Date.now(),
+      message: e.message || 'Terjadi kesalahan'
+    }
+  }
+}
+
+;(async () => {
+  return await mlHeroes('Nana')
+})()
