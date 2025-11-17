@@ -1,0 +1,60 @@
+
+/**
+ * AUTO GENERATED SCRAPE FILE
+ * Request by : 6289673462138@s.whatsapp.net
+ * Filename   : pinterest.txt
+ * Upload At  : Senin, 17/11/2025
+ */
+
+const axios = require('axios')
+const qs = require('querystring')
+
+async function pinterestDownload(pinUrl) {
+  try {
+    const apiUrl = 'https://pintdownloader.com/wp-admin/admin-ajax.php'
+
+    const payload = qs.stringify({
+      action: 'process_pinterest_url',
+      url: pinUrl,
+      nonce: '4d79143d09'
+    })
+
+    const res = await axios.post(apiUrl, payload, {
+      headers: {
+        accept: '*/*',
+        origin: 'https://pintdownloader.com',
+        referer: 'https://pintdownloader.com/',
+        'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36',
+        'x-requested-with': 'XMLHttpRequest'
+      }
+    })
+
+    const body = res.data
+
+    if (!body || !body.success || !body.data) {
+      return {
+        code: 500,
+        message: 'Gagal mengambil data dari Pinterest',
+        timestamp: Date.now()
+      }
+    }
+
+    return {
+      code: 200,
+      timestamp: Date.now(),
+      ...body.data
+    }
+
+  } catch (e) {
+    return {
+      code: 500,
+      error: e.message,
+      timestamp: Date.now()
+    }
+  }
+}
+
+;(async () => {
+  return await pinterestDownload('https://pin.it/6L0lfB9FS')
+})()
