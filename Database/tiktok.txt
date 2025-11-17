@@ -1,0 +1,53 @@
+
+/**
+ * AUTO GENERATED SCRAPE FILE
+ * Request by : 6289673462138@s.whatsapp.net
+ * Filename   : tiktok.txt
+ * Upload At  : Senin, 17/11/2025
+ */
+
+const axios = require("axios")
+const cheerio = require("cheerio")
+
+async function getTTSave(videoUrl) {
+  const url = "https://ttsave.app/download"
+
+  const res = await axios.post(
+    url,
+    {
+      query: videoUrl,
+      language_id: "2"
+    },
+    {
+      headers: {
+        "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "content-type": "application/json",
+        "origin": "https://ttsave.app",
+        "referer": "https://ttsave.app/id",
+        "user-agent":
+          "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Mobile Safari/537.36"
+      }
+    }
+  )
+
+  const html = res.data
+  const $ = cheerio.load(html)
+
+  const videoNoWM = $('a[type="no-watermark"]').attr("href") || null
+  const audio = $('a[type="audio"]').attr("href") || null
+  const videoWM = $('a[type="watermark"]').attr("href") || null
+
+  return {
+    code: 200,
+    timestamp: Date.now(),
+    data: {
+      video_no_watermark: videoNoWM,
+      video_watermark: videoWM,
+      audio_mp3: audio
+    }
+  }
+}
+
+;(async () => {
+  return await getTTSave("https://vt.tiktok.com/ZSyhqqeer/")
+})()
