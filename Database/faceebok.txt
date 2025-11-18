@@ -1,0 +1,48 @@
+
+/**
+ * AUTO GENERATED SCRAPE FILE
+ * Request by : 6289673462138@s.whatsapp.net
+ * Filename   : faceebok.txt
+ * Upload At  : Selasa, 18/11/2025
+ */
+
+const axios = require('axios')
+const qs = require('qs')
+
+async function fbDownloader(videoUrl) {
+  const payload = qs.stringify({
+    k_exp: '1763342961',
+    k_token: '841c3fcd93646c4c048dc7d2d5e60c696cd5654b19e02a5a476f413fad28ee31',
+    p: 'home',
+    q: videoUrl,
+    lang: 'en',
+    v: 'v2',
+    w: ''
+  })
+
+  const headers = {
+    'accept': '*/*',
+    'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
+    'x-requested-with': 'XMLHttpRequest',
+    'origin': 'https://fbdownloader.to',
+    'referer': 'https://fbdownloader.to/en',
+    'user-agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Mobile Safari/537.36'
+  }
+
+  const res = await axios.post(
+    'https://fbdownloader.to/api/ajaxSearch',
+    payload,
+    { headers }
+  )
+
+  return {
+    code: 200,
+    timestamp: Date.now(),
+    data: res.data
+  }
+}
+
+;(async () => {
+  const result = await fbDownloader('https://www.facebook.com/share/r/17nCkvoPib/')
+  return result
+})()
